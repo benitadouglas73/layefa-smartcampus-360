@@ -51,43 +51,44 @@ function classNames(...classes: string[]) {
 
 export default function StudentDashboard() {
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Welcome back, Alex!</h1>
-                    <p className="text-sm text-gray-500">Here's what's happening with your academic life today.</p>
+                    <h1 className="text-3xl font-bold text-white tracking-tight">Welcome back, Alex!</h1>
+                    <p className="mt-1 text-sm text-gray-400">Here's what's happening with your academic life today.</p>
                 </div>
                 <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    <p className="text-sm font-medium text-[var(--neon-purple)]">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                     <p className="text-sm text-gray-500">Fall Semester 2025</p>
                 </div>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {stats.map((item) => (
-                    <div key={item.name} className="bg-white overflow-hidden shadow rounded-lg border border-gray-100">
-                        <div className="p-5">
+                    <div key={item.name} className="glass-card rounded-xl overflow-hidden relative group">
+                        <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-gradient-to-br from-[var(--neon-purple)] to-transparent opacity-10 rounded-full blur-xl group-hover:opacity-20 transition-opacity"></div>
+                        <div className="p-6">
                             <div className="flex items-center">
-                                <div className="flex-shrink-0">
-                                    <item.icon className="h-6 w-6 text-gray-400" aria-hidden="true" />
+                                <div className="flex-shrink-0 p-3 rounded-lg bg-[rgba(255,255,255,0.05)]">
+                                    <item.icon className="h-6 w-6 text-[var(--neon-purple)]" aria-hidden="true" />
                                 </div>
                                 <div className="ml-5 w-0 flex-1">
                                     <dl>
-                                        <dt className="text-sm font-medium text-gray-500 truncate">{item.name}</dt>
+                                        <dt className="text-sm font-medium text-gray-400 truncate">{item.name}</dt>
                                         <dd>
-                                            <div className="text-lg font-medium text-gray-900">{item.value}</div>
+                                            <div className="text-2xl font-bold text-white mt-1">{item.value}</div>
                                         </dd>
                                     </dl>
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-gray-50 px-5 py-3">
+                        <div className="bg-[rgba(0,0,0,0.2)] px-6 py-3 border-t border-[var(--glass-border)]">
                             <div className="text-sm">
                                 <span className={classNames(
-                                    item.changeType === 'increase' ? 'text-green-600' :
-                                        item.changeType === 'decrease' ? 'text-red-600' : 'text-gray-500',
+                                    item.changeType === 'increase' ? 'text-green-400' :
+                                        item.changeType === 'decrease' ? 'text-red-400' : 'text-gray-400',
                                     'font-medium'
                                 )}>
                                     {item.change}
@@ -98,41 +99,41 @@ export default function StudentDashboard() {
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Left Column (Schedule & Assignments) */}
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-2 space-y-8">
 
                     {/* Today's Schedule */}
-                    <div className="bg-white shadow rounded-lg border border-gray-100">
-                        <div className="px-4 py-5 sm:px-6 border-b border-gray-100 flex justify-between items-center">
-                            <h3 className="text-lg leading-6 font-medium text-gray-900">Today's Schedule</h3>
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <div className="glass-card rounded-xl">
+                        <div className="px-6 py-5 border-b border-[var(--glass-border)] flex justify-between items-center">
+                            <h3 className="text-lg leading-6 font-medium text-white">Today's Schedule</h3>
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[rgba(139,92,246,0.2)] text-purple-300 border border-purple-500/30">
                                 4 Classes
                             </span>
                         </div>
-                        <div className="px-4 py-5 sm:p-6">
+                        <div className="px-6 py-6">
                             <div className="flow-root">
                                 <ul className="-mb-8">
                                     {schedule.map((event, eventIdx) => (
                                         <li key={event.id}>
                                             <div className="relative pb-8">
                                                 {eventIdx !== schedule.length - 1 ? (
-                                                    <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true" />
+                                                    <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-[var(--glass-border)]" aria-hidden="true" />
                                                 ) : null}
                                                 <div className="relative flex space-x-3">
                                                     <div>
                                                         <span className={classNames(
-                                                            event.status === 'current' ? 'bg-blue-500' :
-                                                                event.status === 'completed' ? 'bg-green-500' : 'bg-gray-400',
-                                                            'h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white'
+                                                            event.status === 'current' ? 'bg-[var(--neon-purple)] ring-[var(--neon-purple)] shadow-[0_0_10px_rgba(139,92,246,0.5)]' :
+                                                                event.status === 'completed' ? 'bg-green-500 ring-green-500' : 'bg-gray-700 ring-gray-700',
+                                                            'h-8 w-8 rounded-full flex items-center justify-center ring-4 ring-[var(--bg-space)]'
                                                         )}>
                                                             <ClockIcon className="h-5 w-5 text-white" aria-hidden="true" />
                                                         </span>
                                                     </div>
                                                     <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
                                                         <div>
-                                                            <p className="text-sm font-medium text-gray-900">{event.subject}</p>
-                                                            <p className="text-sm text-gray-500">{event.time} • {event.teacher}</p>
+                                                            <p className="text-sm font-medium text-white">{event.subject}</p>
+                                                            <p className="text-sm text-gray-400">{event.time} • {event.teacher}</p>
                                                         </div>
                                                         <div className="text-right text-sm whitespace-nowrap text-gray-500">
                                                             <p>{event.room}</p>
@@ -148,23 +149,23 @@ export default function StudentDashboard() {
                     </div>
 
                     {/* Upcoming Assignments */}
-                    <div className="bg-white shadow rounded-lg border border-gray-100">
-                        <div className="px-4 py-5 sm:px-6 border-b border-gray-100">
-                            <h3 className="text-lg leading-6 font-medium text-gray-900">Upcoming Assignments</h3>
+                    <div className="glass-card rounded-xl">
+                        <div className="px-6 py-5 border-b border-[var(--glass-border)]">
+                            <h3 className="text-lg leading-6 font-medium text-white">Upcoming Assignments</h3>
                         </div>
-                        <ul className="divide-y divide-gray-100">
+                        <ul className="divide-y divide-[var(--glass-border)]">
                             {assignments.map((assignment) => (
-                                <li key={assignment.id} className="px-4 py-4 sm:px-6 hover:bg-gray-50 transition-colors">
+                                <li key={assignment.id} className="px-6 py-4 hover:bg-[rgba(255,255,255,0.02)] transition-colors">
                                     <div className="flex items-center justify-between">
                                         <div className="flex flex-col">
-                                            <p className="text-sm font-medium text-blue-600 truncate">{assignment.title}</p>
+                                            <p className="text-sm font-medium text-[var(--neon-pink)] truncate">{assignment.title}</p>
                                             <p className="text-sm text-gray-500">{assignment.subject}</p>
                                         </div>
                                         <div className="flex flex-col items-end">
-                                            <p className="text-sm text-gray-900 font-medium">{assignment.due}</p>
+                                            <p className="text-sm text-white font-medium">{assignment.due}</p>
                                             <span className={classNames(
-                                                assignment.priority === 'high' ? 'bg-red-100 text-red-800' :
-                                                    assignment.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800',
+                                                assignment.priority === 'high' ? 'bg-red-900/30 text-red-400 border border-red-500/30' :
+                                                    assignment.priority === 'medium' ? 'bg-yellow-900/30 text-yellow-400 border border-yellow-500/30' : 'bg-green-900/30 text-green-400 border border-green-500/30',
                                                 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1'
                                             )}>
                                                 {assignment.priority.charAt(0).toUpperCase() + assignment.priority.slice(1)} Priority
@@ -174,31 +175,33 @@ export default function StudentDashboard() {
                                 </li>
                             ))}
                         </ul>
-                        <div className="bg-gray-50 px-4 py-4 sm:px-6 rounded-b-lg">
+                        <div className="bg-[rgba(0,0,0,0.2)] px-6 py-4 rounded-b-xl border-t border-[var(--glass-border)]">
                             <div className="text-sm">
-                                <a href="#" className="font-medium text-blue-600 hover:text-blue-500">View all assignments <span aria-hidden="true">&rarr;</span></a>
+                                <a href="#" className="font-medium text-[var(--neon-purple)] hover:text-purple-300 flex items-center transition-colors">
+                                    View all assignments <span aria-hidden="true" className="ml-1">&rarr;</span>
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Right Column (Performance & Announcements) */}
-                <div className="space-y-6">
+                <div className="space-y-8">
 
                     {/* Performance Tracker */}
-                    <div className="bg-white shadow rounded-lg border border-gray-100">
-                        <div className="px-4 py-5 sm:px-6 border-b border-gray-100">
-                            <h3 className="text-lg leading-6 font-medium text-gray-900">Performance Tracker</h3>
+                    <div className="glass-card rounded-xl">
+                        <div className="px-6 py-5 border-b border-[var(--glass-border)]">
+                            <h3 className="text-lg leading-6 font-medium text-white">Performance Tracker</h3>
                         </div>
-                        <div className="px-4 py-5 sm:p-6 space-y-4">
+                        <div className="px-6 py-6 space-y-5">
                             {performance.map((subject) => (
                                 <div key={subject.subject}>
-                                    <div className="flex justify-between mb-1">
-                                        <span className="text-sm font-medium text-gray-700">{subject.subject}</span>
-                                        <span className="text-sm font-medium text-gray-900">{subject.grade}%</span>
+                                    <div className="flex justify-between mb-2">
+                                        <span className="text-sm font-medium text-gray-300">{subject.subject}</span>
+                                        <span className="text-sm font-medium text-white">{subject.grade}%</span>
                                     </div>
-                                    <div className="w-full bg-gray-200 rounded-full h-2">
-                                        <div className={`${subject.color} h-2 rounded-full`} style={{ width: `${subject.grade}%` }}></div>
+                                    <div className="w-full bg-gray-700 rounded-full h-2">
+                                        <div className={`${subject.color} h-2 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.3)]`} style={{ width: `${subject.grade}%` }}></div>
                                     </div>
                                 </div>
                             ))}
@@ -206,29 +209,30 @@ export default function StudentDashboard() {
                     </div>
 
                     {/* Announcements */}
-                    <div className="bg-white shadow rounded-lg border border-gray-100">
-                        <div className="px-4 py-5 sm:px-6 border-b border-gray-100 flex justify-between items-center">
-                            <h3 className="text-lg leading-6 font-medium text-gray-900">Notice Board</h3>
+                    <div className="glass-card rounded-xl">
+                        <div className="px-6 py-5 border-b border-[var(--glass-border)] flex justify-between items-center">
+                            <h3 className="text-lg leading-6 font-medium text-white">Notice Board</h3>
                             <BellIcon className="h-5 w-5 text-gray-400" />
                         </div>
-                        <ul className="divide-y divide-gray-100">
+                        <ul className="divide-y divide-[var(--glass-border)]">
                             {announcements.map((item) => (
-                                <li key={item.id} className="px-4 py-4 sm:px-6 hover:bg-gray-50">
+                                <li key={item.id} className="px-6 py-4 hover:bg-[rgba(255,255,255,0.02)] transition-colors">
                                     <div className="flex justify-between">
-                                        <p className="text-sm font-medium text-gray-900">{item.title}</p>
+                                        <p className="text-sm font-medium text-white">{item.title}</p>
                                         <p className="text-xs text-gray-500">{item.date}</p>
                                     </div>
-                                    <p className="mt-1 text-xs text-blue-600">{item.type}</p>
+                                    <p className="mt-1 text-xs text-[var(--neon-cyan)]">{item.type}</p>
                                 </li>
                             ))}
                         </ul>
                     </div>
 
                     {/* Quick Actions */}
-                    <div className="bg-gradient-to-r from-blue-600 to-blue-700 shadow rounded-lg text-white p-6">
-                        <h3 className="text-lg font-bold mb-2">Need Help?</h3>
-                        <p className="text-blue-100 text-sm mb-4">Contact your academic advisor or support team.</p>
-                        <button className="w-full bg-white text-blue-600 font-medium py-2 px-4 rounded shadow hover:bg-blue-50 transition-colors">
+                    <div className="bg-gradient-to-br from-[var(--neon-purple)] to-[var(--neon-pink)] shadow-lg rounded-xl text-white p-6 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
+                        <h3 className="text-lg font-bold mb-2 relative z-10">Need Help?</h3>
+                        <p className="text-purple-100 text-sm mb-6 relative z-10">Contact your academic advisor or support team.</p>
+                        <button className="w-full bg-white text-purple-600 font-bold py-3 px-4 rounded-lg shadow-md hover:bg-gray-50 transition-colors relative z-10">
                             Contact Support
                         </button>
                     </div>
