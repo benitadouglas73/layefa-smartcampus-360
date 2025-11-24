@@ -2,17 +2,21 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '../context/AuthContext';
 import {
     HomeIcon,
     UsersIcon,
     AcademicCapIcon,
     Cog6ToothIcon as CogIcon,
-    ChartBarIcon
+    ChartBarIcon,
+    ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
 
 const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon },
     { name: 'Users', href: '/admin/users', icon: UsersIcon },
+    { name: 'Students', href: '/admin/students', icon: AcademicCapIcon },
+    { name: 'Teachers', href: '/admin/teachers', icon: AcademicCapIcon },
     { name: 'Classes', href: '/admin/classes', icon: AcademicCapIcon },
     { name: 'Analytics', href: '/admin/analytics', icon: ChartBarIcon },
     { name: 'Settings', href: '/admin/settings', icon: CogIcon },
@@ -24,6 +28,7 @@ function classNames(...classes: string[]) {
 
 export default function AdminSidebar() {
     const pathname = usePathname();
+    const { logout } = useAuth();
 
     return (
         <div className="hidden md:flex md:w-72 md:flex-col md:fixed md:inset-y-0 z-50 p-4">
@@ -73,16 +78,27 @@ export default function AdminSidebar() {
                 </div>
 
                 {/* User Profile / Footer */}
-                <div className="flex-shrink-0 flex border-t border-[var(--glass-border)] p-4">
-                    <div className="flex-shrink-0 w-full group block">
-                        <div className="flex items-center">
-                            <div className="inline-block h-10 w-10 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 ring-2 ring-[var(--glass-border)]"></div>
-                            <div className="ml-3">
-                                <p className="text-sm font-medium text-white">Admin User</p>
-                                <p className="text-xs font-medium text-gray-400 group-hover:text-gray-300">View Profile</p>
-                            </div>
+                <div className="flex-shrink-0 flex flex-col border-t border-[var(--glass-border)] p-4 bg-[rgba(0,0,0,0.2)]">
+                    <Link
+                        href="/"
+                        className="flex items-center justify-center w-full px-4 py-2 mb-4 text-sm font-medium text-gray-300 bg-[rgba(255,255,255,0.05)] border border-[var(--glass-border)] rounded-lg hover:bg-[rgba(255,255,255,0.1)] hover:text-white transition-all duration-200"
+                    >
+                        Back to Website
+                    </Link>
+                    <div className="flex items-center mb-4">
+                        <div className="inline-block h-10 w-10 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 ring-2 ring-[var(--glass-border)]"></div>
+                        <div className="ml-3">
+                            <p className="text-sm font-medium text-white">Admin User</p>
+                            <p className="text-xs font-medium text-gray-400 group-hover:text-gray-300">View Profile</p>
                         </div>
                     </div>
+                    <button
+                        onClick={logout}
+                        className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-[rgba(6,182,212,0.1)] border border-[rgba(6,182,212,0.3)] rounded-lg hover:bg-[rgba(6,182,212,0.2)] hover:shadow-[0_0_10px_rgba(6,182,212,0.2)] transition-all duration-200 group"
+                    >
+                        <ArrowRightOnRectangleIcon className="w-5 h-5 mr-2 text-[var(--neon-cyan)] group-hover:text-white transition-colors" />
+                        Sign Out
+                    </button>
                 </div>
             </div>
         </div>

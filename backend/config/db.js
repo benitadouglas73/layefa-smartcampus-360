@@ -1,81 +1,66 @@
-const fs = require('fs');
+const Database = require('better-sqlite3');
 const path = require('path');
+const fs = require('fs');
 
-const dbPath = path.resolve(__dirname, '../database.json');
+const dbPath = path.resolve(__dirname, '../database/smartcampus.sqlite');
 
-// Ensure DB file exists
-if (!fs.existsSync(dbPath)) {
-    fs.writeFileSync(dbPath, JSON.stringify({ users: [] }, null, 2));
+// Create database directory if it doesn't exist
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
 }
 
-const readDb = () => {
-    return JSON.parse(fs.readFileSync(dbPath, 'utf8'));
-};
+let db;
+try {
+    db = new Database(dbPath, { verbose: console.log });
+    console.log('✅ SQLite Database Connected Successfully (better-sqlite3)');
+} catch (err) {
+    console.error('❌ SQLite Connection Failed:', err.message);
+}
 
-const writeDb = (data) => {
-    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
-};
-
+// Wrapper to mimic pg pool.query
 const pool = {
-    query: (text, params) => {
+    query: async (text, params = []) => {
         return new Promise((resolve, reject) => {
-            const db = readDb();
-            const sql = text.trim().toUpperCase();
+            try {
+                // Convert Postgres $1, $2 syntax to SQLite ?
+                let sql = text;
 
-            // Mock delay
-            setTimeout(() => {
-                try {
-                    // SELECT * FROM users WHERE email = $1
-                    if (sql.startsWith('SELECT * FROM USERS WHERE EMAIL')) {
-                        const email = params[0];
-                        const user = db.users.find(u => u.email === email);
-                        resolve({ rows: user ? [user] : [] });
-                        return;
-                    }
+                // Simple regex to replace $1, $2, etc with ?
+                // Note: This is a basic implementation. 
+                sql = sql.replace(/\$\d+/g, '?');
 
-                    // SELECT id, name, email, role FROM users WHERE id = $1
-                    if (sql.startsWith('SELECT ID, NAME, EMAIL, ROLE FROM USERS WHERE ID')) {
-                        const id = params[0];
-                        const user = db.users.find(u => u.id === id);
-                        resolve({ rows: user ? [user] : [] });
-                        return;
-                    }
+                const stmt = db.prepare(sql);
 
-                    // INSERT INTO users ...
-                    if (sql.startsWith('INSERT INTO USERS')) {
-                        const newUser = {
-                            id: Date.now().toString(), // Simple ID generation
-                            name: params[0],
-                            email: params[1],
-                            password_hash: params[2],
-                            role: params[3],
-                            created_at: new Date().toISOString()
-                        };
-                        db.users.push(newUser);
-                        writeDb(db);
-                        resolve({ rows: [newUser] });
-                        return;
-                    }
+                // Determine if it's a SELECT or modification query
+                const isSelect = sql.trim().toUpperCase().startsWith('SELECT');
 
-                    // SELECT 1 + 1 (Test query)
-                    if (sql.includes('SELECT 1 + 1')) {
-                        resolve({ rows: [{ result: 2 }] });
-                        return;
-                    }
-
-                    console.warn('Unhandled query in JSON DB adapter:', text);
-                    resolve({ rows: [] });
-
-                } catch (err) {
-                    reject(err);
+                if (isSelect) {
+                    const rows = stmt.all(...params);
+                    resolve({ rows, rowCount: rows.length });
+                } else {
+                    const info = stmt.run(...params);
+                    // info contains: changes, lastInsertRowid
+                    resolve({
+                        rows: info.lastInsertRowid ? [{ id: info.lastInsertRowid }] : [],
+                        rowCount: info.changes,
+                        rowsAffected: info.changes
+                    });
                 }
-            }, 10);
+            } catch (err) {
+                reject(err);
+            }
         });
     }
 };
 
 const connectDB = async () => {
-    console.log('JSON Database Adapter Ready');
+    try {
+        // Test query
+        await pool.query('SELECT 1');
+    } catch (err) {
+        console.error('❌ SQLite Test Query Failed:', err.message);
+    }
 };
 
 module.exports = { pool, connectDB };

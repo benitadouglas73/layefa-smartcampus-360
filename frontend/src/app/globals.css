@@ -9,6 +9,11 @@
   --neon-cyan: #06b6d4;
   --neon-purple: #8b5cf6;
   --neon-pink: #ec4899;
+  --neon-green: #22c55e;
+  --neon-blue: #3b82f6;
+
+  /* Backgrounds */
+  --background-dark: #020617;
 
   /* Text */
   --text-primary: #f8fafc;

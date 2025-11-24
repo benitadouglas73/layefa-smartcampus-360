@@ -1,0 +1,8 @@
+{
+    "name": "Test Student",
+    "email": "teststudent@smartcampus.com",
+    "password": "password123",
+    "class_id": 1,
+    "admission_number": "SC/2025/001",
+    "parent_phone": "08012345678"
+}

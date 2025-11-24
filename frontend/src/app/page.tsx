@@ -1,37 +1,46 @@
+'use client';
+
 import Navbar from '../components/Navbar';
 import Link from 'next/link';
+import { ArrowRightIcon, AcademicCapIcon, ComputerDesktopIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-[var(--background-dark)] font-sans text-white overflow-x-hidden">
       <Navbar />
 
       {/* Hero Section */}
-      <div className="relative h-screen flex items-center justify-center">
-        {/* Background Image with Overlay */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1950&q=80"
-            alt="Students learning"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black opacity-60"></div>
+      <div className="relative min-h-screen flex items-center justify-center pt-20">
+        {/* Background Effects */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[var(--neon-blue)] rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-[var(--neon-purple)] rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-pulse delay-1000"></div>
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto mt-16">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-tight mb-6">
-            TRANSFORMING LIVES VIA <br className="hidden md:block" />
-            <span className="text-blue-500">EDUCATION</span> AND <span className="text-blue-500">INNOVATION</span>
+        <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <div className="inline-block mb-4 px-4 py-1 rounded-full border border-[var(--neon-cyan)] bg-[rgba(6,182,212,0.1)] backdrop-blur-sm">
+            <span className="text-[var(--neon-cyan)] text-sm font-bold uppercase tracking-widest">Welcome to the Future</span>
+          </div>
+
+          <h1 className="text-5xl sm:text-7xl md:text-8xl font-black tracking-tighter leading-tight mb-8">
+            TRANSFORMING <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--neon-cyan)] via-[var(--neon-blue)] to-[var(--neon-purple)] drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]">
+              EDUCATION
+            </span>
           </h1>
-          <p className="mt-4 text-lg sm:text-xl text-gray-200 max-w-3xl mx-auto mb-10">
-            SmartCampus 360 is a digital ecosystem empowering the next generation of leaders through accessible technology and comprehensive school management.
+
+          <p className="mt-4 text-xl sm:text-2xl text-gray-300 max-w-3xl mx-auto mb-12 font-light leading-relaxed">
+            Layefa SmartCampus 360 is a digital ecosystem empowering the next generation of leaders through accessible technology and comprehensive school management.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link href="/apply" className="bg-blue-600 text-white px-8 py-4 font-bold text-base uppercase tracking-wide hover:bg-blue-700 transition-transform transform hover:scale-105">
-              Apply Now
+
+          <div className="flex flex-col sm:flex-row justify-center gap-6">
+            <Link href="/register" className="group relative px-8 py-4 bg-[var(--neon-cyan)] text-black font-bold text-lg uppercase tracking-wide rounded-lg overflow-hidden transition-all hover:shadow-[0_0_30px_rgba(6,182,212,0.6)]">
+              <span className="relative z-10 flex items-center">
+                Get Started <ArrowRightIcon className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              </span>
+              <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
             </Link>
-            <Link href="/about" className="bg-transparent border-2 border-white text-white px-8 py-4 font-bold text-base uppercase tracking-wide hover:bg-white hover:text-black transition-colors">
+            <Link href="/about" className="px-8 py-4 bg-transparent border border-[var(--glass-border)] text-white font-bold text-lg uppercase tracking-wide rounded-lg hover:bg-[rgba(255,255,255,0.05)] hover:border-[var(--neon-purple)] hover:text-[var(--neon-purple)] transition-all hover:shadow-[0_0_20px_rgba(168,85,247,0.3)]">
               Learn More
             </Link>
           </div>
@@ -39,112 +48,98 @@ export default function Home() {
       </div>
 
       {/* What We Do Section */}
-      <div className="py-20 bg-gray-50">
+      <div className="py-24 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl uppercase tracking-wide">
-              What We Do
+          <div className="text-center mb-20">
+            <h2 className="text-3xl sm:text-5xl font-bold text-white uppercase tracking-wide mb-4">
+              What We <span className="text-[var(--neon-cyan)]">Do</span>
             </h2>
-            <div className="w-24 h-1 bg-blue-600 mx-auto mt-4"></div>
+            <div className="w-24 h-1 bg-gradient-to-r from-[var(--neon-cyan)] to-[var(--neon-purple)] mx-auto"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {/* Card 1 */}
-            <div className="bg-white p-8 shadow-lg hover:shadow-xl transition-shadow border-t-4 border-blue-600">
-              <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center mb-6">
-                <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                title: 'Academic Excellence',
+                desc: 'Robust platform for managing academic records and tracking student progress.',
+                icon: AcademicCapIcon,
+                color: 'var(--neon-cyan)'
+              },
+              {
+                title: 'Digital Management',
+                desc: 'Streamline operations with tools for attendance, fees, and communication.',
+                icon: ComputerDesktopIcon,
+                color: 'var(--neon-purple)'
+              },
+              {
+                title: 'Community Portal',
+                desc: 'Unified ecosystem connecting students, teachers, and parents.',
+                icon: UserGroupIcon,
+                color: 'var(--neon-pink)'
+              }
+            ].map((item, index) => (
+              <div key={index} className="glass-panel p-8 rounded-2xl hover:border-[var(--neon-cyan)] transition-all duration-300 group hover:-translate-y-2">
+                <div className="h-14 w-14 rounded-xl bg-[rgba(255,255,255,0.05)] flex items-center justify-center mb-6 group-hover:bg-[rgba(6,182,212,0.1)] transition-colors">
+                  <item.icon className="h-8 w-8 text-gray-300 group-hover:text-[var(--neon-cyan)] transition-colors" style={{ color: `group-hover:${item.color}` }} />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-[var(--neon-cyan)] transition-colors">{item.title}</h3>
+                <p className="text-gray-400 leading-relaxed">
+                  {item.desc}
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Academic Excellence</h3>
-              <p className="text-gray-600 leading-relaxed">
-                We provide a robust platform for managing academic records, ensuring that every student's progress is tracked and nurtured.
-              </p>
-            </div>
-
-            {/* Card 2 */}
-            <div className="bg-white p-8 shadow-lg hover:shadow-xl transition-shadow border-t-4 border-blue-600">
-              <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center mb-6">
-                <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Digital Management</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Streamline school operations with our comprehensive digital tools for attendance, fees, and communication.
-              </p>
-            </div>
-
-            {/* Card 3 */}
-            <div className="bg-white p-8 shadow-lg hover:shadow-xl transition-shadow border-t-4 border-blue-600">
-              <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center mb-6">
-                <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Community Portal</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Connect students, teachers, and parents in a unified ecosystem that fosters collaboration and growth.
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Centers of Excellence Section */}
-      <div className="py-20 bg-white">
+      <div className="py-24 relative bg-[rgba(0,0,0,0.2)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl uppercase tracking-wide">
-              Centers of Excellence
+          <div className="text-center mb-20">
+            <h2 className="text-3xl sm:text-5xl font-bold text-white uppercase tracking-wide mb-4">
+              Centers of <span className="text-[var(--neon-purple)]">Excellence</span>
             </h2>
-            <div className="w-24 h-1 bg-blue-600 mx-auto mt-4"></div>
-            <p className="mt-4 text-xl text-gray-500">
+            <div className="w-24 h-1 bg-gradient-to-r from-[var(--neon-purple)] to-[var(--neon-pink)] mx-auto mb-6"></div>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
               Pioneering the future of education with specialized, high-tech learning hubs.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
-                name: 'School of AI & Robotics',
+                name: 'AI & Robotics',
                 image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=800',
-                desc: 'Mastering machine learning, automation, and intelligent systems.'
+                desc: 'Machine learning & automation.'
               },
               {
-                name: 'School of Sustainable Innovation',
+                name: 'Sustainable Innovation',
                 image: 'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&q=80&w=800',
-                desc: 'Engineering green solutions for a cleaner, brighter tomorrow.'
+                desc: 'Green solutions for tomorrow.'
               },
               {
-                name: 'School of Digital Arts & VR',
+                name: 'Digital Arts & VR',
                 image: 'https://images.unsplash.com/photo-1626379953822-baec19c3accd?auto=format&fit=crop&q=80&w=800',
-                desc: 'Creating immersive experiences through AR, VR, and modern design.'
+                desc: 'Immersive creative experiences.'
               },
               {
-                name: 'School of Future Business',
+                name: 'Future Business',
                 image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=800',
-                desc: 'Leading the next wave of fintech, startups, and global economics.'
+                desc: 'Fintech & global economics.'
               }
             ].map((school, index) => (
-              <div key={index} className="group relative overflow-hidden rounded-2xl shadow-xl cursor-pointer h-96">
+              <div key={index} className="group relative overflow-hidden rounded-2xl h-80 border border-[var(--glass-border)] hover:border-[var(--neon-purple)] transition-all duration-500">
                 <img
                   src={school.image}
                   alt={school.name}
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-in-out"
+                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-in-out grayscale group-hover:grayscale-0"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-90"></div>
                 <div className="absolute bottom-0 left-0 p-6 w-full">
-                  <h3 className="text-2xl font-bold text-white mb-2">{school.name}</h3>
-                  <p className="text-gray-300 text-sm mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
+                  <h3 className="text-xl font-bold text-white mb-1 group-hover:text-[var(--neon-purple)] transition-colors">{school.name}</h3>
+                  <p className="text-gray-400 text-sm mb-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
                     {school.desc}
                   </p>
-                  <span className="inline-flex items-center text-blue-400 font-bold text-sm uppercase tracking-wider group-hover:text-blue-300 transition-colors">
-                    Explore Program
-                    <svg className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                  </span>
                 </div>
               </div>
             ))}

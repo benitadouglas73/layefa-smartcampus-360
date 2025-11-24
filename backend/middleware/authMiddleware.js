@@ -13,11 +13,16 @@ const protect = async (req, res, next) => {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
             // Get user from the token
-            const userResult = await pool.query('SELECT id, name, email, role FROM users WHERE id = $1', [decoded.id]);
+            const userResult = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.id]);
             req.user = userResult.rows[0];
 
             if (!req.user) {
                 return res.status(401).json({ message: 'Not authorized, user not found' });
+            }
+
+            // Check token version
+            if (decoded.tokenVersion !== req.user.token_version) {
+                return res.status(401).json({ message: 'Not authorized, token expired' });
             }
 
             next();

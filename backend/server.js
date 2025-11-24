@@ -5,6 +5,11 @@ const morgan = require('morgan');
 const dotenv = require('dotenv');
 const { connectDB } = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
+const classRoutes = require('./routes/classRoutes');
+const studentRoutes = require('./routes/studentRoutes');
+const teacherRoutes = require('./routes/teacherRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes');
+const gradeRoutes = require('./routes/gradeRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -23,6 +28,11 @@ connectDB();
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/classes', classRoutes);
+app.use('/api/students', studentRoutes);
+app.use('/api/teachers', teacherRoutes);
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/grades', gradeRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {

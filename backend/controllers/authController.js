@@ -3,8 +3,8 @@ const jwt = require('jsonwebtoken');
 const { pool } = require('../config/db');
 
 // Generate JWT Token
-const generateToken = (id, role) => {
-    return jwt.sign({ id, role }, process.env.JWT_SECRET, {
+const generateToken = (id, role, tokenVersion) => {
+    return jwt.sign({ id, role, tokenVersion }, process.env.JWT_SECRET, {
         expiresIn: '30d',
     });
 };
@@ -37,12 +37,13 @@ const register = async (req, res) => {
             [name, email, hashedPassword, role]
         );
 
+        const user = newUser.rows[0];
         res.status(201).json({
-            _id: newUser.rows[0].id,
-            name: newUser.rows[0].name,
-            email: newUser.rows[0].email,
-            role: newUser.rows[0].role,
-            token: generateToken(newUser.rows[0].id, newUser.rows[0].role),
+            _id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            token: generateToken(user.id, user.role, user.token_version),
         });
     } catch (error) {
         console.error(error);
@@ -54,20 +55,29 @@ const register = async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 const login = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, logoutOthers } = req.body;
 
     try {
         // Check for user email
         const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        const user = userResult.rows[0];
+        let user = userResult.rows[0];
 
         if (user && (await bcrypt.compare(password, user.password_hash))) {
+
+            // If logoutOthers is true, increment token version
+            if (logoutOthers) {
+                await pool.query('UPDATE users SET token_version = token_version + 1 WHERE id = $1', [user.id]);
+                // Fetch updated user to get new token_version
+                const updatedUser = await pool.query('SELECT * FROM users WHERE id = $1', [user.id]);
+                user = updatedUser.rows[0];
+            }
+
             res.json({
                 _id: user.id,
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                token: generateToken(user.id, user.role),
+                token: generateToken(user.id, user.role, user.token_version || 0),
             });
         } else {
             res.status(400).json({ message: 'Invalid credentials' });
@@ -91,8 +101,22 @@ const getMe = async (req, res) => {
     }
 };
 
+// @desc    Logout from all devices
+// @route   POST /api/auth/logout-all
+// @access  Private
+const logoutAll = async (req, res) => {
+    try {
+        await pool.query('UPDATE users SET token_version = token_version + 1 WHERE id = $1', [req.user.id]);
+        res.status(200).json({ message: 'Logged out from all devices' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 module.exports = {
     register,
     login,
     getMe,
+    logoutAll,
 };
