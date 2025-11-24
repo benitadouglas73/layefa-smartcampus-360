@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { API_URL } from '@/config';
 
 interface User {
     id: string;
@@ -59,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const logoutAll = async () => {
         try {
             if (token) {
-                await fetch('http://localhost:5000/api/auth/logout-all', {
+                await fetch(`${API_URL}/api/auth/logout-all`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`

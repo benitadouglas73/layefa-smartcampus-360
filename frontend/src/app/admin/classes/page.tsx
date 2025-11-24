@@ -9,6 +9,7 @@ import {
     PencilSquareIcon,
     TrashIcon
 } from '@heroicons/react/24/outline';
+import { API_URL } from '@/config';
 
 export default function AdminClasses() {
     const [classes, setClasses] = useState<any[]>([]);
@@ -24,7 +25,7 @@ export default function AdminClasses() {
     const fetchClasses = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/classes', {
+            const res = await fetch(`${API_URL}/api/classes`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -53,7 +54,7 @@ export default function AdminClasses() {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/classes', {
+            const res = await fetch(`${API_URL}/api/classes`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -77,7 +78,7 @@ export default function AdminClasses() {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:5000/api/classes/${id}`, {
+            const res = await fetch(`${API_URL}/api/classes/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });

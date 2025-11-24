@@ -9,6 +9,7 @@ import {
     ClockIcon,
     ExclamationCircleIcon
 } from '@heroicons/react/24/outline';
+import { API_URL } from '@/config';
 
 export default function TeacherAttendance() {
     const [classes, setClasses] = useState<any[]>([]);
@@ -32,7 +33,7 @@ export default function TeacherAttendance() {
     const fetchClasses = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/classes', {
+            const res = await fetch(`${API_URL}/api/classes`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.status === 401) { logout(); return; }
@@ -57,7 +58,7 @@ export default function TeacherAttendance() {
             // but the standard way is to get students first.
 
             // Let's fetch all students and filter by class_id (since our getStudents API returns all)
-            const studentsRes = await fetch('http://localhost:5000/api/students', {
+            const studentsRes = await fetch(`${API_URL}/api/students`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const allStudents = await studentsRes.json();
@@ -65,7 +66,7 @@ export default function TeacherAttendance() {
             setStudents(classStudents);
 
             // 2. Fetch existing attendance
-            const attRes = await fetch(`http://localhost:5000/api/attendance/class/${selectedClass}?date=${selectedDate}`, {
+            const attRes = await fetch(`${API_URL}/api/attendance/class/${selectedClass}?date=${selectedDate}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const attData = await attRes.json();
@@ -118,7 +119,7 @@ export default function TeacherAttendance() {
                 remarks: attendance[studentId].remarks
             }));
 
-            const res = await fetch('http://localhost:5000/api/attendance', {
+            const res = await fetch(`${API_URL}/api/attendance`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -212,8 +213,8 @@ export default function TeacherAttendance() {
                                                             key={status.id}
                                                             onClick={() => handleStatusChange(student.student_id, status.id)}
                                                             className={`p-2 rounded-lg transition-all ${attendance[student.student_id]?.status === status.id
-                                                                    ? `${status.bg} ${status.color} ring-1 ring-inset ring-${status.color.split('-')[1]}-500`
-                                                                    : 'text-gray-600 hover:bg-gray-800'
+                                                                ? `${status.bg} ${status.color} ring-1 ring-inset ring-${status.color.split('-')[1]}-500`
+                                                                : 'text-gray-600 hover:bg-gray-800'
                                                                 }`}
                                                             title={status.id.charAt(0).toUpperCase() + status.id.slice(1)}
                                                         >

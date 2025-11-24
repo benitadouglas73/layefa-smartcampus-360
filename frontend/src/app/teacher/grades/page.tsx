@@ -7,6 +7,7 @@ import {
     ClipboardDocumentCheckIcon,
     PlusIcon
 } from '@heroicons/react/24/outline';
+import { API_URL } from '@/config';
 
 export default function TeacherGrades() {
     const [classes, setClasses] = useState<any[]>([]);
@@ -37,7 +38,7 @@ export default function TeacherGrades() {
     const fetchClasses = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/classes', {
+            const res = await fetch(`${API_URL}/api/classes`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.status === 401) { logout(); return; }
@@ -52,7 +53,7 @@ export default function TeacherGrades() {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/students', {
+            const res = await fetch(`${API_URL}/api/students`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const allStudents = await res.json();
@@ -74,7 +75,7 @@ export default function TeacherGrades() {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/grades', {
+            const res = await fetch(`${API_URL}/api/grades`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

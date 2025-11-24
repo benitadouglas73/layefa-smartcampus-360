@@ -9,6 +9,7 @@ import {
     TrashIcon,
     PencilSquareIcon
 } from '@heroicons/react/24/outline';
+import { API_URL } from '@/config';
 
 export default function AdminStudents() {
     const [students, setStudents] = useState<any[]>([]);
@@ -35,7 +36,7 @@ export default function AdminStudents() {
     const fetchStudents = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/students', {
+            const res = await fetch(`${API_URL}/api/students`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -61,7 +62,7 @@ export default function AdminStudents() {
     const fetchClasses = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/classes', {
+            const res = await fetch(`${API_URL}/api/classes`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
@@ -77,7 +78,7 @@ export default function AdminStudents() {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/students', {
+            const res = await fetch(`${API_URL}/api/students`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

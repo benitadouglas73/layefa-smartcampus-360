@@ -8,6 +8,7 @@ import {
     ClockIcon,
     ExclamationCircleIcon
 } from '@heroicons/react/24/outline';
+import { API_URL } from '@/config';
 
 export default function StudentAttendance() {
     const [attendance, setAttendance] = useState<any[]>([]);
@@ -31,7 +32,7 @@ export default function StudentAttendance() {
             // 1. Get Student Profile (we need a way to get this. Let's assume /api/auth/me returns it or we have a /api/students/me)
             // Since we don't have a dedicated /me endpoint for profile, let's search for the student by email (which is unique) from the students list
             // This is a bit hacky but works without changing backend too much right now.
-            const studentsRes = await fetch('http://localhost:5000/api/students', {
+            const studentsRes = await fetch(`${API_URL}/api/students`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (studentsRes.status === 401) { logout(); return; }
@@ -40,7 +41,7 @@ export default function StudentAttendance() {
 
             if (myProfile) {
                 // 2. Fetch Attendance
-                const attRes = await fetch(`http://localhost:5000/api/attendance/student/${myProfile.id}`, {
+                const attRes = await fetch(`${API_URL}/api/attendance/student/${myProfile.id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const attData = await attRes.json();

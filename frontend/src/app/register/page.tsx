@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import { useAuth } from '../../context/AuthContext';
 import { useRouter } from 'next/navigation';
+import { API_URL } from '@/config';
 
 export default function Register() {
     const [name, setName] = useState('');
@@ -22,7 +23,7 @@ export default function Register() {
         setLoading(true);
 
         try {
-            const res = await fetch('http://localhost:5000/api/auth/register', {
+            const res = await fetch(`${API_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

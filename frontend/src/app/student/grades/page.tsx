@@ -5,6 +5,7 @@ import { useAuth } from '../../../context/AuthContext';
 import {
     AcademicCapIcon
 } from '@heroicons/react/24/outline';
+import { API_URL } from '@/config';
 
 export default function StudentGrades() {
     const [grades, setGrades] = useState<any[]>([]);
@@ -21,7 +22,7 @@ export default function StudentGrades() {
         try {
             const token = localStorage.getItem('token');
             // 1. Get Student Profile
-            const studentsRes = await fetch('http://localhost:5000/api/students', {
+            const studentsRes = await fetch(`${API_URL}/api/students`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (studentsRes.status === 401) { logout(); return; }
@@ -30,7 +31,7 @@ export default function StudentGrades() {
 
             if (myProfile) {
                 // 2. Fetch Grades
-                const gradesRes = await fetch(`http://localhost:5000/api/grades/student/${myProfile.id}`, {
+                const gradesRes = await fetch(`${API_URL}/api/grades/student/${myProfile.id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const gradesData = await gradesRes.json();

@@ -10,6 +10,7 @@ import {
     PencilSquareIcon,
     AcademicCapIcon
 } from '@heroicons/react/24/outline';
+import { API_URL } from '@/config';
 
 export default function AdminTeachers() {
     const [teachers, setTeachers] = useState<any[]>([]);
@@ -34,7 +35,7 @@ export default function AdminTeachers() {
     const fetchTeachers = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/teachers', {
+            const res = await fetch(`${API_URL}/api/teachers`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -61,7 +62,7 @@ export default function AdminTeachers() {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/teachers', {
+            const res = await fetch(`${API_URL}/api/teachers`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
