@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
 import { useAuth } from '../context/AuthContext';
 import {
     HomeIcon,
