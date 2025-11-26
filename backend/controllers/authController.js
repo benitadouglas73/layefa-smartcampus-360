@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { pool } = require('../config/db');
+const { supabase } = require('../config/db');
 
 // Generate JWT Token
 const generateToken = (id, role, tokenVersion) => {
@@ -21,9 +21,14 @@ const register = async (req, res) => {
 
     try {
         // Check if user exists
-        const userExists = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        const { data: existingUsers, error: checkError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email);
 
-        if (userExists.rows.length > 0) {
+        if (checkError) throw checkError;
+
+        if (existingUsers.length > 0) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
@@ -32,12 +37,16 @@ const register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         // Create user
-        const newUser = await pool.query(
-            'INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING *',
-            [name, email, hashedPassword, role]
-        );
+        const { data: newUsers, error: insertError } = await supabase
+            .from('users')
+            .insert([
+                { name, email, password_hash: hashedPassword, role }
+            ])
+            .select();
 
-        const user = newUser.rows[0];
+        if (insertError) throw insertError;
+
+        const user = newUsers[0];
         res.status(201).json({
             _id: user.id,
             name: user.name,
@@ -47,7 +56,7 @@ const register = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
@@ -59,17 +68,29 @@ const login = async (req, res) => {
 
     try {
         // Check for user email
-        const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        let user = userResult.rows[0];
+        const { data: users, error: fetchError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email);
+
+        if (fetchError) throw fetchError;
+
+        let user = users[0];
 
         if (user && (await bcrypt.compare(password, user.password_hash))) {
 
             // If logoutOthers is true, increment token version
             if (logoutOthers) {
-                await pool.query('UPDATE users SET token_version = token_version + 1 WHERE id = $1', [user.id]);
-                // Fetch updated user to get new token_version
-                const updatedUser = await pool.query('SELECT * FROM users WHERE id = $1', [user.id]);
-                user = updatedUser.rows[0];
+                // Note: token_version might be null initially, so we handle that
+                const currentVersion = user.token_version || 0;
+                const { data: updatedUsers, error: updateError } = await supabase
+                    .from('users')
+                    .update({ token_version: currentVersion + 1 })
+                    .eq('id', user.id)
+                    .select();
+
+                if (updateError) throw updateError;
+                user = updatedUsers[0];
             }
 
             res.json({
@@ -84,7 +105,7 @@ const login = async (req, res) => {
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
@@ -93,11 +114,17 @@ const login = async (req, res) => {
 // @access  Private
 const getMe = async (req, res) => {
     try {
-        const userResult = await pool.query('SELECT id, name, email, role FROM users WHERE id = $1', [req.user.id]);
-        res.status(200).json(userResult.rows[0]);
+        const { data: users, error } = await supabase
+            .from('users')
+            .select('id, name, email, role')
+            .eq('id', req.user.id);
+
+        if (error) throw error;
+
+        res.status(200).json(users[0]);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
@@ -106,11 +133,32 @@ const getMe = async (req, res) => {
 // @access  Private
 const logoutAll = async (req, res) => {
     try {
-        await pool.query('UPDATE users SET token_version = token_version + 1 WHERE id = $1', [req.user.id]);
+        // We need to fetch the current version first to increment it safely, 
+        // or we can use a stored procedure (RPC) for atomic increment.
+        // For simplicity, we'll fetch and update, but RPC is better for concurrency.
+        // However, Supabase doesn't support `token_version + 1` in simple update calls directly without RPC.
+
+        const { data: user, error: fetchError } = await supabase
+            .from('users')
+            .select('token_version')
+            .eq('id', req.user.id)
+            .single();
+
+        if (fetchError) throw fetchError;
+
+        const newVersion = (user.token_version || 0) + 1;
+
+        const { error: updateError } = await supabase
+            .from('users')
+            .update({ token_version: newVersion })
+            .eq('id', req.user.id);
+
+        if (updateError) throw updateError;
+
         res.status(200).json({ message: 'Logged out from all devices' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 

@@ -170,7 +170,7 @@ export default function Analytics() {
                                 <Legend
                                     verticalAlign="bottom"
                                     height={36}
-                                    formatter={(value, entry: any) => <span className="text-gray-300 ml-2 font-medium">{value}</span>}
+                                    formatter={(value: any) => <span className="text-gray-300 ml-2 font-medium">{value}</span>}
                                 />
                             </PieChart>
                         </ResponsiveContainer>
@@ -193,7 +193,7 @@ export default function Analytics() {
                                 <XAxis dataKey="name" stroke="#9ca3af" tick={{ fill: '#9ca3af' }} axisLine={false} tickLine={false} />
                                 <YAxis stroke="#9ca3af" tick={{ fill: '#9ca3af' }} axisLine={false} tickLine={false} />
                                 <Tooltip content={<CustomTooltip />} />
-                                <Legend formatter={(value) => <span className="text-gray-300 ml-2">{value}</span>} />
+                                <Legend formatter={(value: any) => <span className="text-gray-300 ml-2">{value}</span>} />
                                 <Bar dataKey="logins" fill="var(--neon-cyan)" radius={[4, 4, 0, 0]} />
                                 <Bar dataKey="actions" fill="var(--neon-purple)" radius={[4, 4, 0, 0]} />
                             </BarChart>
@@ -217,7 +217,7 @@ export default function Analytics() {
                         ].map((log, index) => (
                             <div key={index} className="flex items-start p-3 rounded-lg bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.05)] transition-colors">
                                 <div className={`w-2 h-2 mt-2 rounded-full mr-3 flex-shrink-0 ${log.type === 'success' ? 'bg-green-400' :
-                                        log.type === 'error' ? 'bg-red-400' : 'bg-blue-400'
+                                    log.type === 'error' ? 'bg-red-400' : 'bg-blue-400'
                                     }`}></div>
                                 <div>
                                     <p className="text-sm font-medium text-white">{log.action}</p>

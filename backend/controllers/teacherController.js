@@ -1,4 +1,4 @@
-const { pool } = require('../config/db');
+const { supabase } = require('../config/db');
 const bcrypt = require('bcrypt');
 
 // @desc    Register a new teacher
@@ -13,8 +13,14 @@ const registerTeacher = async (req, res) => {
 
     try {
         // Check if user exists
-        const userExists = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (userExists.rows.length > 0) {
+        const { data: existingUsers, error: checkError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email);
+
+        if (checkError) throw checkError;
+
+        if (existingUsers.length > 0) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
@@ -22,23 +28,29 @@ const registerTeacher = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Start transaction
-        await pool.query('BEGIN');
-
         // Create User
-        const userResult = await pool.query(
-            'INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
-            [name, email, hashedPassword, 'teacher']
-        );
-        const user = userResult.rows[0];
+        const { data: newUsers, error: userError } = await supabase
+            .from('users')
+            .insert([
+                { name, email, password_hash: hashedPassword, role: 'teacher' }
+            ])
+            .select();
+
+        if (userError) throw userError;
+        const user = newUsers[0];
 
         // Create Teacher Profile
-        await pool.query(
-            'INSERT INTO teachers (user_id, subject_specialization, qualification, phone_number) VALUES ($1, $2, $3, $4)',
-            [user.id, subject_specialization, qualification, phone_number]
-        );
+        const { error: profileError } = await supabase
+            .from('teachers')
+            .insert([
+                { user_id: user.id, subject_specialization, qualification, phone_number }
+            ]);
 
-        await pool.query('COMMIT');
+        if (profileError) {
+            // Cleanup
+            await supabase.from('users').delete().eq('id', user.id);
+            throw profileError;
+        }
 
         res.status(201).json({
             ...user,
@@ -46,9 +58,8 @@ const registerTeacher = async (req, res) => {
             qualification
         });
     } catch (error) {
-        await pool.query('ROLLBACK');
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
@@ -57,17 +68,38 @@ const registerTeacher = async (req, res) => {
 // @access  Private/Admin
 const getTeachers = async (req, res) => {
     try {
-        const result = await pool.query(`
-            SELECT u.id, u.name, u.email, t.subject_specialization, t.qualification, t.phone_number
-            FROM users u
-            JOIN teachers t ON u.id = t.user_id
-            WHERE u.role = 'teacher'
-            ORDER BY u.created_at DESC
-        `);
-        res.status(200).json(result.rows);
+        const { data: teachers, error } = await supabase
+            .from('users')
+            .select(`
+                id, name, email, created_at,
+                teachers (
+                    subject_specialization,
+                    qualification,
+                    phone_number
+                )
+            `)
+            .eq('role', 'teacher')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Transform data
+        const formattedTeachers = teachers.map(teacher => {
+            const profile = Array.isArray(teacher.teachers) ? teacher.teachers[0] : teacher.teachers;
+            return {
+                id: teacher.id,
+                name: teacher.name,
+                email: teacher.email,
+                subject_specialization: profile ? profile.subject_specialization : null,
+                qualification: profile ? profile.qualification : null,
+                phone_number: profile ? profile.phone_number : null
+            };
+        });
+
+        res.status(200).json(formattedTeachers);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 

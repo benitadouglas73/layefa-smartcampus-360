@@ -1,22 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const { pool } = require('../config/db');
-
 const migrate = async () => {
-    try {
-        console.log('⏳ Running migration...');
-
-        const schemaPath = path.resolve(__dirname, '../database/schema.sql');
-        const schema = fs.readFileSync(schemaPath, 'utf8');
-
-        await pool.query(schema);
-
-        console.log('✅ Migration completed successfully!');
-        process.exit(0);
-    } catch (err) {
-        console.error('❌ Migration failed:', err);
-        process.exit(1);
-    }
+    console.log('⚠️  Supabase Migration Notice ⚠️');
+    console.log('-----------------------------------');
+    console.log('The Supabase JS SDK does not support running raw SQL files directly.');
+    console.log('Please copy the content of "database/schema.sql" and run it in your Supabase Dashboard SQL Editor.');
+    console.log('-----------------------------------');
+    process.exit(0);
 };
 
 migrate();

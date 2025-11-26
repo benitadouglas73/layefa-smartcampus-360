@@ -1,22 +1,38 @@
-const { pool } = require('../config/db');
+const { supabase } = require('../config/db');
 
 // @desc    Get all classes
 // @route   GET /api/classes
 // @access  Private
 const getClasses = async (req, res) => {
     try {
-        const result = await pool.query(`
-            SELECT c.*, u.name as teacher_name, 
-            (SELECT COUNT(*) FROM users WHERE role = 'student') as student_count 
-            FROM classes c 
-            LEFT JOIN users u ON c.teacher_id = u.id
-            ORDER BY c.created_at DESC
-        `);
-        // Note: student_count is mocked for now as we don't have a class_students table yet
-        res.status(200).json(result.rows);
+        // We want to fetch classes and join with users to get teacher name
+        // Supabase syntax: select('*, teacher:users!teacher_id(name)')
+        // This requires a foreign key relationship to be detected.
+        // If not detected, we might need to fetch users separately or use a view.
+        // Assuming the schema.sql is run, FK exists.
+
+        const { data: classes, error } = await supabase
+            .from('classes')
+            .select(`
+                *,
+                teacher:users!teacher_id (name)
+            `)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Transform data to match previous format (flatten teacher name)
+        const formattedClasses = classes.map(cls => ({
+            ...cls,
+            teacher_name: cls.teacher ? cls.teacher.name : null,
+            // Mock student count for now as per original code
+            student_count: 0
+        }));
+
+        res.status(200).json(formattedClasses);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
@@ -31,14 +47,19 @@ const createClass = async (req, res) => {
     }
 
     try {
-        const result = await pool.query(
-            'INSERT INTO classes (name, capacity, teacher_id) VALUES ($1, $2, $3) RETURNING *',
-            [name, capacity || 30, teacher_id || null]
-        );
-        res.status(201).json(result.rows[0]);
+        const { data, error } = await supabase
+            .from('classes')
+            .insert([
+                { name, capacity: capacity || 30, teacher_id: teacher_id || null }
+            ])
+            .select();
+
+        if (error) throw error;
+
+        res.status(201).json(data[0]);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
@@ -47,16 +68,22 @@ const createClass = async (req, res) => {
 // @access  Private/Admin
 const deleteClass = async (req, res) => {
     try {
-        const result = await pool.query('DELETE FROM classes WHERE id = $1 RETURNING *', [req.params.id]);
+        const { data, error } = await supabase
+            .from('classes')
+            .delete()
+            .eq('id', req.params.id)
+            .select();
 
-        if (result.rows.length === 0) {
+        if (error) throw error;
+
+        if (data.length === 0) {
             return res.status(404).json({ message: 'Class not found' });
         }
 
         res.status(200).json({ id: req.params.id });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 

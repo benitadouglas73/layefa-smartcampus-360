@@ -1,4 +1,4 @@
-const { pool } = require('../config/db');
+const { supabase } = require('../config/db');
 
 // @desc    Record grades for a student (or bulk for class - implemented as single for now)
 // @route   POST /api/grades
@@ -11,14 +11,19 @@ const recordGrade = async (req, res) => {
     }
 
     try {
-        const result = await pool.query(
-            'INSERT INTO grades (student_id, class_id, subject, assessment_type, score, max_score, term, remarks) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-            [student_id, class_id, subject, assessment_type, score, max_score, term, remarks || '']
-        );
-        res.status(201).json(result.rows[0]);
+        const { data, error } = await supabase
+            .from('grades')
+            .insert([
+                { student_id, class_id, subject, assessment_type, score, max_score, term, remarks: remarks || '' }
+            ])
+            .select();
+
+        if (error) throw error;
+
+        res.status(201).json(data[0]);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
@@ -29,14 +34,18 @@ const getStudentGrades = async (req, res) => {
     const { studentId } = req.params;
 
     try {
-        const result = await pool.query(
-            'SELECT * FROM grades WHERE student_id = $1 ORDER BY created_at DESC',
-            [studentId]
-        );
-        res.status(200).json(result.rows);
+        const { data, error } = await supabase
+            .from('grades')
+            .select('*')
+            .eq('student_id', studentId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        res.status(200).json(data);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
@@ -47,32 +56,57 @@ const getClassGrades = async (req, res) => {
     const { classId } = req.params;
     const { subject, term } = req.query;
 
-    let query = `
-        SELECT g.*, s.name as student_name, s.admission_number 
-        FROM grades g
-        JOIN student_profiles sp ON g.student_id = sp.id
-        JOIN users s ON sp.user_id = s.id
-        WHERE g.class_id = $1
-    `;
-    const params = [classId];
-
-    if (subject) {
-        query += ` AND g.subject = $${params.length + 1}`;
-        params.push(subject);
-    }
-    if (term) {
-        query += ` AND g.term = $${params.length + 1}`;
-        params.push(term);
-    }
-
-    query += ' ORDER BY s.name ASC';
-
     try {
-        const result = await pool.query(query, params);
-        res.status(200).json(result.rows);
+        let query = supabase
+            .from('grades')
+            .select(`
+                *,
+                student_profiles (
+                    admission_number,
+                    users (
+                        name
+                    )
+                )
+            `)
+            .eq('class_id', classId);
+
+        if (subject) {
+            query = query.eq('subject', subject);
+        }
+        if (term) {
+            query = query.eq('term', term);
+        }
+
+        // Order by student name requires sorting on joined table which is tricky in Supabase simple select.
+        // We can order by grade created_at or just sort in JS.
+        // Sorting by joined column is supported in newer Supabase versions but syntax is specific.
+        // For simplicity, we'll sort in JS or just order by created_at.
+        // Let's order by created_at for now.
+        query = query.order('created_at', { ascending: false });
+
+        const { data: grades, error } = await query;
+
+        if (error) throw error;
+
+        // Transform data
+        const formattedGrades = grades.map(grade => {
+            const profile = Array.isArray(grade.student_profiles) ? grade.student_profiles[0] : grade.student_profiles;
+            const user = profile && profile.users ? (Array.isArray(profile.users) ? profile.users[0] : profile.users) : {};
+
+            return {
+                ...grade,
+                student_name: user ? user.name : null,
+                admission_number: profile ? profile.admission_number : null
+            };
+        });
+
+        // Sort by student name if needed
+        formattedGrades.sort((a, b) => (a.student_name || '').localeCompare(b.student_name || ''));
+
+        res.status(200).json(formattedGrades);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 

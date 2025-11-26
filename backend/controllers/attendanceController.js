@@ -1,4 +1,4 @@
-const { pool } = require('../config/db');
+const { supabase } = require('../config/db');
 
 // @desc    Mark attendance for a class (Bulk or Single)
 // @route   POST /api/attendance
@@ -11,38 +11,27 @@ const markAttendance = async (req, res) => {
     }
 
     try {
-        await pool.query('BEGIN');
+        // Prepare data for upsert
+        const upsertData = attendanceData.map(record => ({
+            student_id: record.student_id,
+            class_id,
+            date,
+            status: record.status,
+            remarks: record.remarks || ''
+        }));
 
-        for (const record of attendanceData) {
-            const { student_id, status, remarks } = record;
+        // Use upsert with onConflict on (student_id, date, class_id)
+        // Note: The unique constraint must exist in the database for this to work correctly as an upsert.
+        const { error } = await supabase
+            .from('attendance')
+            .upsert(upsertData, { onConflict: 'student_id, date, class_id' });
 
-            // Check if record exists for this student and date
-            const existing = await pool.query(
-                'SELECT id FROM attendance WHERE student_id = $1 AND date = $2',
-                [student_id, date]
-            );
+        if (error) throw error;
 
-            if (existing.rows.length > 0) {
-                // Update
-                await pool.query(
-                    'UPDATE attendance SET status = $1, remarks = $2 WHERE id = $3',
-                    [status, remarks || '', existing.rows[0].id]
-                );
-            } else {
-                // Insert
-                await pool.query(
-                    'INSERT INTO attendance (student_id, class_id, date, status, remarks) VALUES ($1, $2, $3, $4, $5)',
-                    [student_id, class_id, date, status, remarks || '']
-                );
-            }
-        }
-
-        await pool.query('COMMIT');
         res.status(200).json({ message: 'Attendance marked successfully' });
     } catch (error) {
-        await pool.query('ROLLBACK');
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
@@ -58,18 +47,39 @@ const getClassAttendance = async (req, res) => {
     }
 
     try {
-        const result = await pool.query(`
-            SELECT a.*, s.name as student_name, s.admission_number
-            FROM attendance a
-            JOIN student_profiles sp ON a.student_id = sp.id
-            JOIN users s ON sp.user_id = s.id
-            WHERE a.class_id = $1 AND a.date = $2
-        `, [classId, date]);
+        // Join attendance -> student_profiles -> users
+        const { data: attendance, error } = await supabase
+            .from('attendance')
+            .select(`
+                *,
+                student_profiles (
+                    admission_number,
+                    users (
+                        name
+                    )
+                )
+            `)
+            .eq('class_id', classId)
+            .eq('date', date);
 
-        res.status(200).json(result.rows);
+        if (error) throw error;
+
+        // Transform data
+        const formattedAttendance = attendance.map(record => {
+            const profile = Array.isArray(record.student_profiles) ? record.student_profiles[0] : record.student_profiles;
+            const user = profile && profile.users ? (Array.isArray(profile.users) ? profile.users[0] : profile.users) : {};
+
+            return {
+                ...record,
+                student_name: user ? user.name : null,
+                admission_number: profile ? profile.admission_number : null
+            };
+        });
+
+        res.status(200).json(formattedAttendance);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
@@ -80,14 +90,18 @@ const getStudentAttendance = async (req, res) => {
     const { studentId } = req.params;
 
     try {
-        const result = await pool.query(
-            'SELECT * FROM attendance WHERE student_id = $1 ORDER BY date DESC',
-            [studentId]
-        );
-        res.status(200).json(result.rows);
+        const { data, error } = await supabase
+            .from('attendance')
+            .select('*')
+            .eq('student_id', studentId)
+            .order('date', { ascending: false });
+
+        if (error) throw error;
+
+        res.status(200).json(data);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 
