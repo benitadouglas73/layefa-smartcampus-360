@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   /* Deep Space Background */
@@ -22,16 +24,6 @@
   /* Glassmorphism */
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-shine: rgba(255, 255, 255, 0.05);
-}
-
-@theme inline {
-  --color-bg-space: var(--bg-space);
-  --color-bg-panel: var(--bg-panel);
-  --color-neon-cyan: var(--neon-cyan);
-  --color-neon-purple: var(--neon-purple);
-  --color-neon-pink: var(--neon-pink);
-  --color-text-primary: var(--text-primary);
-  --color-text-secondary: var(--text-secondary);
 }
 
 body {
