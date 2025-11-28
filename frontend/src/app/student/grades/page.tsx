@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import {
     AcademicCapIcon
@@ -12,13 +12,7 @@ export default function StudentGrades() {
     const [loading, setLoading] = useState(true);
     const { user, logout } = useAuth();
 
-    useEffect(() => {
-        if (user) {
-            fetchGrades();
-        }
-    }, [user]);
-
-    const fetchGrades = async () => {
+    const fetchGrades = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
             // 1. Get Student Profile
@@ -42,7 +36,13 @@ export default function StudentGrades() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user, logout]);
+
+    useEffect(() => {
+        if (user) {
+            fetchGrades();
+        }
+    }, [user, fetchGrades]);
 
     return (
         <div className="space-y-6">
