@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { API_URL } from '@/config';
 
@@ -38,16 +38,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
-    const login = (newToken: string, userData: User, rememberMe: boolean) => {
+    const login = useCallback((newToken: string, userData: User, rememberMe: boolean) => {
         setToken(newToken);
         setUser(userData);
 
         const storage = rememberMe ? localStorage : sessionStorage;
         storage.setItem('token', newToken);
         storage.setItem('user', JSON.stringify(userData));
-    };
+    }, []);
 
-    const logout = () => {
+    const logout = useCallback(() => {
         setToken(null);
         setUser(null);
         localStorage.removeItem('token');
@@ -55,9 +55,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         sessionStorage.removeItem('token');
         sessionStorage.removeItem('user');
         router.push('/login');
-    };
+    }, [router]);
 
-    const logoutAll = async () => {
+    const logoutAll = useCallback(async () => {
         try {
             if (token) {
                 await fetch(`${API_URL}/api/auth/logout-all`, {
@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } finally {
             logout();
         }
-    };
+    }, [token, logout]);
 
     return (
         <AuthContext.Provider value={{ user, token, login, logout, logoutAll, isAuthenticated: !!token }}>

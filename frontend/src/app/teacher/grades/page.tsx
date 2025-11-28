@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import {
     AcademicCapIcon,
@@ -25,17 +25,7 @@ export default function TeacherGrades() {
     const [term, setTerm] = useState('Term 1');
     const [remarks, setRemarks] = useState('');
 
-    useEffect(() => {
-        fetchClasses();
-    }, []);
-
-    useEffect(() => {
-        if (selectedClass) {
-            fetchStudents();
-        }
-    }, [selectedClass]);
-
-    const fetchClasses = async () => {
+    const fetchClasses = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
             const res = await fetch(`${API_URL}/api/classes`, {
@@ -47,9 +37,9 @@ export default function TeacherGrades() {
         } catch (error) {
             console.error('Error fetching classes:', error);
         }
-    };
+    }, [logout]);
 
-    const fetchStudents = async () => {
+    const fetchStudents = useCallback(async () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
@@ -64,7 +54,17 @@ export default function TeacherGrades() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [selectedClass]);
+
+    useEffect(() => {
+        fetchClasses();
+    }, [fetchClasses]);
+
+    useEffect(() => {
+        if (selectedClass) {
+            fetchStudents();
+        }
+    }, [selectedClass, fetchStudents]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

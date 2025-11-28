@@ -7,7 +7,7 @@ export default function TeacherDashboard() {
                 {/* Card 1: Today's Schedule */}
                 <div className="bg-white overflow-hidden shadow rounded-lg">
                     <div className="px-4 py-5 sm:p-6">
-                        <dt className="text-sm font-medium text-gray-500 truncate">Today's Classes</dt>
+                        <dt className="text-sm font-medium text-gray-500 truncate">Today&apos;s Classes</dt>
                         <dd className="mt-1 text-3xl font-semibold text-gray-900">4</dd>
                         <p className="mt-2 text-sm text-gray-600">Next: Physics 101 (11:00 AM)</p>
                     </div>
@@ -27,7 +27,7 @@ export default function TeacherDashboard() {
                     <div className="px-4 py-5 sm:p-6">
                         <dt className="text-sm font-medium text-gray-500 truncate">Unread Messages</dt>
                         <dd className="mt-1 text-3xl font-semibold text-gray-900">5</dd>
-                        <p className="mt-2 text-sm text-blue-600">From parents & students</p>
+                        <p className="mt-2 text-sm text-blue-600">From parents &amp; students</p>
                     </div>
                 </div>
             </div>
